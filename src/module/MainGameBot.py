@@ -29,7 +29,7 @@ def function_to_run():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("/join")
     markup.row(btn1)
-    return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Жми на "JOIN"', reply_markup=markup)
+    return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Жми на "JOIN", чтобы отметиться.', reply_markup=markup)
 
 def clear_list():
     return user_list.clear() 
@@ -64,7 +64,7 @@ def start_message(message):
 def answer_user(message):
 
     if message.text == 'Приду':
-        bot.send_message(message.chat.id,  f'Отлично! Не опаздывай :).')
+        bot.send_message(message.chat.id,  f'Отлично! Не опаздывай :).', reply_markup=types.ReplyKeyboardRemove(), parse_mode='Markdown')
         user_info_active = message.from_user.id
         if len(user_list) == 0:
             user_list.append(user_info_active)
@@ -76,7 +76,7 @@ def answer_user(message):
         
         print(user_list)
     else:
-        bot.send_message(message.chat.id, f'Это сатана душит тебя!')
+        bot.send_message(message.chat.id, f'Это сатана душит тебя!', reply_markup=types.ReplyKeyboardRemove(), parse_mode='Markdown')
         user_info_passive = message.from_user.id
         if user_info_passive in user_list:
                 user_list.remove(user_info_passive)
