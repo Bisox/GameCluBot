@@ -27,9 +27,10 @@ def schedule_checker():
 
 def function_to_run():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("/join")
-    markup.row(btn1)
-    return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Жми на "JOIN"', reply_markup=markup)
+    btn1 = types.KeyboardButton('Приду')
+    btn2 = types.KeyboardButton('Не приду')
+    markup.row(btn1, btn2)
+    return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Придешь?', reply_markup=markup)
 
 def clear_list():
     return user_list.clear() 
@@ -38,7 +39,7 @@ def clear_list():
 
 if __name__ == "__main__":   
     schedule.every().thursday.at("00:01").do(clear_list)
-    schedule.every().thursday.at("18:00").do(function_to_run)
+    schedule.every().sunday.at("04:52").do(function_to_run)
     Thread(target=schedule_checker).start()
 
 #----------------------------------------------------------------------------------------------
@@ -46,25 +47,11 @@ if __name__ == "__main__":
 
 
 #----------------------------------------------------------------------------------------------
-@bot.message_handler(commands=['join'])
-
-
-def start_message(message):
-    create_table()
-    add_users_table(message)    
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton('Приду')
-    btn2 = types.KeyboardButton('Не приду')
-    markup.row(btn1, btn2)
-    bot.send_message(message.chat.id, f'Придешь сегодня на игру?', reply_markup=markup)
-    bot.register_next_step_handler(message, answer_user)
-    
-    
-#----------------------------------------------------------------------------------------------
-   
+@bot.message_handler(content_types=['text'])
 
 def answer_user(message):
-
+    create_table()
+    add_users_table(message)  
     if message.text == 'Приду':
         bot.send_message(message.chat.id,  f'Отлично! Не опаздывай :).')
         user_info_active = message.from_user.id

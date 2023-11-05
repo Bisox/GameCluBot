@@ -8,6 +8,9 @@ import os
 from Classes import ChoiceGame, ChoiseCafe
 from Database import create_table, add_users_table
 
+
+
+
 load_dotenv()
 chat_id = 1934046598 # ID чата 1934046598, -1001986943224
 user_list = []
@@ -27,9 +30,10 @@ def schedule_checker():
 
 def function_to_run():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("/join")
-    markup.row(btn1)
-    return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Жми на "JOIN", чтобы отметиться.', reply_markup=markup)
+    btn1 = types.KeyboardButton('Приду')
+    btn2 = types.KeyboardButton('Не приду')
+    markup.row(btn1, btn2)
+    return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Придешь?', reply_markup=markup)
 
 def clear_list():
     return user_list.clear() 
@@ -38,33 +42,25 @@ def clear_list():
 
 if __name__ == "__main__":   
     schedule.every().thursday.at("00:01").do(clear_list)
-    schedule.every().thursday.at("18:00").do(function_to_run)
+    schedule.every().sunday.at("04:56").do(function_to_run)
     Thread(target=schedule_checker).start()
 
 #----------------------------------------------------------------------------------------------
 
+@bot.message_handler(commands=['game'])
 
-
+def get_game(message):
+    game.choice()
+    bot.send_message(message.chat.id, f'Список игр в которые можете сегодня поиграть: \n✅{"   ✅".join(game.name)}' )  
 #----------------------------------------------------------------------------------------------
-@bot.message_handler(commands=['join'])
 
-def start_message(message):
-    create_table()
-    add_users_table(message)
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton('Приду')
-    btn2 = types.KeyboardButton('Не приду')
-    markup.row(btn1, btn2)
-    bot.send_message(message.chat.id, f'Придешь сегодня на игру?', reply_markup=markup)
-    bot.register_next_step_handler(message, answer_user)
-    
-    
-#----------------------------------------------------------------------------------------------
-   
+
+@bot.message_handler(content_types=['text'])
 
 def answer_user(message):
-
-    if message.text == 'Приду':
+    create_table()
+    add_users_table(message)
+    if message.text.lower() == 'приду':
         bot.send_message(message.chat.id,  f'Отлично! Не опаздывай :).', reply_markup=types.ReplyKeyboardRemove(), parse_mode='Markdown')
         user_info_active = message.from_user.id
         if len(user_list) == 0:
@@ -76,22 +72,13 @@ def answer_user(message):
 
         
         print(user_list)
-    else:
+    elif message.text.lower() == 'не приду':
         bot.send_message(message.chat.id, f'Это сатана душит тебя!', reply_markup=types.ReplyKeyboardRemove(), parse_mode='Markdown')
         user_info_passive = message.from_user.id
         if user_info_passive in user_list:
                 user_list.remove(user_info_passive)
 
         print(user_list)
-
-
-game.choice()
-
-@bot.message_handler(commands=['game'])
-def get_game(message):
-    bot.send_message(message.chat.id, f'Список игр в которые можете сегодня поиграть: \n✅{"   ✅".join(game.name)}' )
-                     
-
 
 
 
