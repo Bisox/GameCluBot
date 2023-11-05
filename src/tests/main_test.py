@@ -6,7 +6,7 @@ from telebot import types
 from dotenv import load_dotenv
 import os
 from Classes import ChoiceGame, ChoiseCafe
-
+from SQL_test import create_table, add_users_table
 
 load_dotenv()
 chat_id = 1934046598 # ID чата 1934046598, -1001986943224
@@ -48,8 +48,10 @@ if __name__ == "__main__":
 #----------------------------------------------------------------------------------------------
 @bot.message_handler(commands=['join'])
 
+
 def start_message(message):
-    
+    create_table()
+    add_users_table(message)    
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('Приду')
     btn2 = types.KeyboardButton('Не приду')
