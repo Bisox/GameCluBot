@@ -5,21 +5,25 @@ from time import sleep
 from telebot import types
 from dotenv import load_dotenv
 import os
-from Classes import ChoiceGame, ChoiseCafe
+from Classes import ChoiceGame, ChoiceCafe
 from SQL_test import create_table, add_users_table
+import requests
+import json
+
+
 
 load_dotenv()
-chat_id = 1934046598 # ID чата 1934046598, -1001986943224
-user_list = []
+chat_id = -1001986943224 # ID чата 1934046598, -1001986943224
+user_list = [237075537]
 owner_game = [557552160, 237075537] 
 amount_users = len(user_list)
 bot = telebot.TeleBot(os.getenv('TOKEN'))
+API = '7d173332332ff816eb05842cec22f61b'
 game = ChoiceGame.Game(user_list, owner_game)
-cafe = ChoiseCafe.Cafe()
+cafe = ChoiceCafe.Cafe()
 
 
-
-
+#----------------------------------------------------------------------------------------------
 def schedule_checker():
     while True:
         schedule.run_pending()
@@ -32,27 +36,53 @@ def function_to_run():
     markup.row(btn1, btn2)
     return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Придешь?', reply_markup=markup)
 
-def clear_list():
-    return user_list.clear() 
-    
 
+def clear_list():
+    return user_list.clear(), print(user_list) 
+    
+def get_game_cafe():
+    bot.send_message(chat_id, f'На игру записалось {amount_users} человек. Подбираю список игр.')
+    bot.send_message(chat_id, f'Список игр в которые можете сегодня поиграть: {",  ".join(game.name)}')
+    bot.send_message(chat_id, f'Кафе в котором сегодня играем: {"".join(cafe.name)}')
 
 if __name__ == "__main__":   
-    schedule.every().thursday.at("00:01").do(clear_list)
-    schedule.every().sunday.at("04:52").do(function_to_run)
+    schedule.every().sunday.at("00:00").do(clear_list)
+    schedule.every().sunday.at("15:14").do(function_to_run)
+    schedule.every().friday.at("16:00").do(get_game_cafe)
     Thread(target=schedule_checker).start()
 
+
+    
+#----------------------------------------------------------------------------------------------
+@bot.message_handler(commands=['weather'])
+
+def get_weather(message):
+    city = 'Mersin'
+    res = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
+    data = json.loads(res.text) 
+    bot.reply_to(message, f'Сейчас температура в Эрдемли: {round(data["main"]["temp"], 1)}°')
+
 #----------------------------------------------------------------------------------------------
 
+@bot.message_handler(commands=['game'])
 
-
+def get_game(message):
+    
+    bot.send_message(message.chat.id, f'Список игр в которые можете сегодня поиграть: \n✅{"   ✅".join(game.name)}' )  
 #----------------------------------------------------------------------------------------------
+@bot.message_handler(commands=['cafe'])
+
+def get_game(message):
+    cafe.choice()
+    bot.send_message(message.chat.id, f'Кафе в котором сегодня играем: {"".join(cafe.name)}')
+#----------------------------------------------------------------------------------------------
+
 @bot.message_handler(content_types=['text'])
 
 def answer_user(message):
     create_table()
-    add_users_table(message)  
-    if message.text == 'Приду':
+    add_users_table(message)
+    if message.text.lower() == 'приду':
         bot.send_message(message.chat.id,  f'Отлично! Не опаздывай :).')
         user_info_active = message.from_user.id
         if len(user_list) == 0:
@@ -64,7 +94,7 @@ def answer_user(message):
 
         
         print(user_list)
-    else:
+    elif message.text.lower() == 'не приду':
         bot.send_message(message.chat.id, f'Это сатана душит тебя!')
         user_info_passive = message.from_user.id
         if user_info_passive in user_list:
@@ -73,15 +103,7 @@ def answer_user(message):
         print(user_list)
 
 
+
+cafe.choice()    
 game.choice()
-
-@bot.message_handler(commands=['game'])
-def get_game(message):
-    bot.send_message(message.chat.id, f'Список игр в которые можете сегодня поиграть: \n✅{"   ✅".join(game.name)}' )
-                     
-
-
-
-
-
 bot.polling(non_stop=True)
