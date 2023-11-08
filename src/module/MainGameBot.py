@@ -1,24 +1,22 @@
-import schedule
+import schedule, time
 import telebot
 from threading import Thread
-from time import sleep
-from telebot import types
-from dotenv import load_dotenv
-import os
 from Classes import ChoiceGame, ChoiceCafe
 from Database import create_table, add_users_table
-import requests
-import json
+import requests, json
+
+with open("token_api.json", 'r') as f:
+    data = json.load(f)
+file = json.loads(data)
 
 
 
-load_dotenv()
 chat_id = 1934046598 # ID чата 1934046598, -1001986943224
 user_list = []
 owner_game = [557552160, 237075537] 
 amount_users = len(user_list)
-API = '7d173332332ff816eb05842cec22f61b'
-bot = telebot.TeleBot(os.getenv('TOKEN'))
+API = file['data']['api']
+bot = telebot.TeleBot(file['data']['token'])
 game = ChoiceGame.Game(user_list, owner_game)
 cafe = ChoiceCafe.Cafe()
 
@@ -28,12 +26,12 @@ cafe = ChoiceCafe.Cafe()
 def schedule_checker():
     while True:
         schedule.run_pending()
-        sleep(1)
+        time.sleep(1)
 
 def function_to_run():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton('Приду')
-    btn2 = types.KeyboardButton('Не приду')
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = telebot.types.KeyboardButton('Приду')
+    btn2 = telebot.types.KeyboardButton('Не приду')
     markup.row(btn1, btn2)
     return bot.send_message(chat_id, 'Привет! Завтра играем в настолки в 20:00. Придешь?', reply_markup=markup)
 
@@ -42,9 +40,9 @@ def clear_list():
     return user_list.clear(), print(user_list) 
     
 def get_game_cafe():
-    bot.send_message(chat_id, f'На игру записалось {amount_users} человек. Подбираю список игр.')
+    bot.send_message(chat_id, f'На игру записалось {amount_users} человек.')
     bot.send_message(chat_id, f'Список игр в которые можете сегодня поиграть: {",  ".join(game.name)}')
-    bot.send_message(chat_id, f'Кафе в котором сегодня играем: {"".join(cafe.name)}')
+    bot.send_message(chat_id, f'Кафе в котором собираемся: {"".join(cafe.name)}')
 
 if __name__ == "__main__":   
     schedule.every().sunday.at("00:00").do(clear_list)

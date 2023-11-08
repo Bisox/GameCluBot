@@ -9,7 +9,7 @@ class Cafe:
         self.name = ''
 
 
-    def choice(self, list_cafe):
+    def choice(self, list_cafe=cafe_list):
         
         self.name = random.choice(list_cafe)
        

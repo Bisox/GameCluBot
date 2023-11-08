@@ -1,33 +1,41 @@
-import schedule
+import schedule, time
 import telebot
 from threading import Thread
-from time import sleep
 from telebot import types
-from dotenv import load_dotenv
-import os
 from Classes import ChoiceGame, ChoiceCafe
 from SQL_test import create_table, add_users_table
-import requests
-import json
+import requests, json
 
 
 
-load_dotenv()
-chat_id = -1001986943224 # ID чата 1934046598, -1001986943224
+with open("token_api.json", 'r') as f:
+    data = json.load(f)
+file = json.loads(data)
+#----------------------------------------------------------------------------------------------
+
+chat_id = 1934046598 # ID чата 1934046598, -1001986943224
 user_list = [237075537]
 owner_game = [557552160, 237075537] 
 amount_users = len(user_list)
-bot = telebot.TeleBot(os.getenv('TOKEN'))
-API = '7d173332332ff816eb05842cec22f61b'
+bot = telebot.TeleBot(file['data']['token'])
+API = file['data']['api']
 game = ChoiceGame.Game(user_list, owner_game)
 cafe = ChoiceCafe.Cafe()
 
 
+
+
+
 #----------------------------------------------------------------------------------------------
+
+
+
+
+
 def schedule_checker():
     while True:
         schedule.run_pending()
-        sleep(1)
+        time.sleep(1)
 
 def function_to_run():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
