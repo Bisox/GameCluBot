@@ -28,8 +28,18 @@ cafe = ChoiceCafe.Cafe()
 
 #----------------------------------------------------------------------------------------------
 
+import logging
 
+logging.basicConfig(
+    level=logging.DEBUG, 
+    filename = "mylog.log", 
+    format = "%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s", 
+    datefmt='%H:%M:%S',
+    )
 
+logging.info('Hello')
+
+#----------------------------------------------------------------------------------------------
 
 
 def schedule_checker():
@@ -52,6 +62,7 @@ def get_game_cafe():
     bot.send_message(chat_id, f'На игру записалось {amount_users} человек. Подбираю список игр.')
     bot.send_message(chat_id, f'Список игр в которые можете сегодня поиграть: {",  ".join(game.name)}')
     bot.send_message(chat_id, f'Кафе в котором сегодня играем: {"".join(cafe.name)}')
+    bot.send_message(chat_id, get_weather())
 
 if __name__ == "__main__":   
     schedule.every().sunday.at("00:00").do(clear_list)
